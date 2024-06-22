@@ -5,9 +5,13 @@
     margin-top: 25px;
     margin-left: -25px;
     }
+
+    a:hover{
+        cursor: pointer;
+    }
 </style>
 <!-- Page Wrapper -->
- <div id="wrapper">
+ <div id="wrapper" *ngIf="isVisible">
 
     <!-- Sidebar -->
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -24,22 +28,22 @@
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - TRANG CHỦ -->
-        <li class="nav-item ">
-            <a class="nav-link" [routerLink]="['/home']">
+        <li class="nav-item">
+            <a class="nav-link" (click)="trangchu()">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>Trang chủ</span></a>
         </li>
 
         <!-- Nav Item - ODER -->
         <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/home']">
+            <a class="nav-link" (click)="goimon()">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Gọi món</span></a>
         </li>
 
         <!-- Nav Item - DSTables -->
         <li class="nav-item">
-            <a class="nav-link" href="tables.html">
+            <a class="nav-link" (click)="danhsachban()">
                 <i class="fas fa-fw fa-table"></i>
                 <span>Danh sách bàn</span></a>
         </li>
@@ -49,27 +53,27 @@
         </div> -->
         <!-- Nav Item - DANH MỤC -->
         <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/home']">
+            <a class="nav-link" (click)="danhmuc()" [class.disabled]="hiddenbtn">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Danh mục</span></a>
         </li>
 
         <!-- Nav Item - MÓN ĂN -->
         <li class="nav-item">
-            <a class="nav-link" href="tables.html">
+            <a class="nav-link" (click)="monan()" [class.disabled]="hiddenbtn">
                 <i class="fas fa-fw fa-table"></i>
                 <span>Món ăn</span></a>
         </li>
         <!-- Nav Item - DOANH THU -->
         <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/home']">
+            <a class="nav-link" (click)="doanhthu()" [class.disabled]="hiddenbtn">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Doanh thu</span></a>
         </li>
 
         <!-- Nav Item - QLTK -->
         <li class="nav-item">
-            <a class="nav-link" href="tables.html">
+            <a class="nav-link" (click)="qltk()" [class.disabled]="hiddenbtn">
                 <i class="fas fa-fw fa-table"></i>
                 <span>Quản lý tài khoản</span></a>
         </li>
@@ -195,4 +199,6 @@
     </div>
 </div>
 
-
+<div *ngIf="!isVisible">
+    <router-outlet></router-outlet>
+</div>
