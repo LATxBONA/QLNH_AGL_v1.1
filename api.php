@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 $server = "localhost";
 $username = "root";
 $password = "";
-$database = "qlnh_perfact";
+$database = "angular";
 
 // Kết nối
 $conn = new mysqli($server, $username, $password, $database);

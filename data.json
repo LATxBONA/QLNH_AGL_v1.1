@@ -1,10 +1,10 @@
 {
     "taikhoan": [
         {
-            "AccountID": "2",
-            "Username": "admin",
-            "Password": "1",
-            "AccountType": "0"
+            "AccountID": "5",
+            "Username": "HTP",
+            "Password": "123",
+            "AccountType": "1"
         }
     ]
 }

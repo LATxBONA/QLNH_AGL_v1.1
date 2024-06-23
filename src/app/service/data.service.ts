@@ -7,7 +7,7 @@ import { taikhoan } from '../models/taikhoan';
   providedIn: 'root'
 })
 export class DataService {
-  private API = "http://localhost/project/QLNH_AGL_v1.1/api.php";
+  private API = "http://localhost/project/QLNH_AGL/QLNH_AGL_v1.1/api.php";
   private DATA_JSON = "http://localhost:3000";
 
   private httpOptions = {
