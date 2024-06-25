@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { taikhoan } from '../../../models/taikhoan';
-import { DataService } from '../../../service/data.service';
+import { taikhoan } from '../../models/taikhoan';
+import { DataService } from '../../service/data.service';
 import { Router } from '@angular/router';
 
 @Component({
