@@ -35,6 +35,8 @@ $BillDate = isset($_GET['BillDate']) ? $_GET['BillDate'] : '';
 $TotalAmount = isset($_GET['TotalAmount']) ? $_GET['TotalAmount'] : '';
 $CustomerName = isset($_GET['CustomerName']) ? $_GET['CustomerName'] : '';
 $SDT = isset($_GET['SDT']) ? $_GET['SDT'] : '';
+$UserInfoName = isset($_GET['UserInfoName']) ? $_GET['UserInfoName'] : '';
+
 
 switch($action){
     case "checkAccount":
@@ -53,13 +55,22 @@ switch($action){
         getFood($conn, $DMFoodID);
         break;
     case "addBill":
-        addBill($conn, $FoodName, $FoodID, $Quantity, $TableName, $BillDate, $CustomerName, $SDT);
+        addBill($conn, $FoodName, $FoodID, $Quantity, $TableName, $BillDate, $CustomerName, $SDT,$UserInfoName);
         break;
     case "getDatalBillCurrent":
         getDatalBillCurrent($conn, $TableName);
         break;
     case "plushQuantityItem":
         plushQuantityItem($conn, $FoodName, $TableName, $CustomerName, $SDT);
+        break;
+    case "minusQuantityItem":
+        minusQuantityItem($conn, $FoodName, $TableName, $CustomerName, $SDT);
+        break;
+    case "saveBillToSQL":
+        saveBillToSQL($conn, $TableName);
+        break;
+    case "quantityCustomer":
+        quantityCustomer($conn);
         break;
     default:
         echo "Không xác định";
@@ -82,18 +93,94 @@ function checkAccount($conn, $Username, $Password) {
     file_put_contents('data.json', $json);
 }
 
+
 function home($conn){
-    $sql_totalamount = "SELECT SUM(TotalAmount) AS TotalAmount FROM tbBillHistory WHERE DATE(BillDate) = CURDATE()";
+    $sql_totalamount = "SELECT SUM(TotalAmount) AS TotalAmount FROM tbbillhistory WHERE DATE(BillDate) = CURDATE()";
+    $sql_totalcustomer = "SELECT BillDate, CustomerName, TableName, SUM(TotalAmount) AS TotalAmount FROM tbbillhistory WHERE DATE(BillDate) = CURDATE() GROUP BY BillDate, CustomerName, TableName ORDER BY BillDate DESC LIMIT 5";
+    $sql_alltable = "SELECT COUNT(TableID) AS QuantityTableEmpty FROM tbdstable";
+    $sql_statustable = "SELECT COUNT(TableID) AS QuantityTableEmpty FROM tbdstable WHERE Status='Trống'";
+    $sql_bestfoodname = "SELECT FoodName, SUM(Quantity) AS Quantity FROM tbbillhistory WHERE DATE(BillDate) = CURDATE() GROUP BY FoodName ORDER BY Quantity DESC LIMIT 1";
+    $sql_totalQuantitySold = "SELECT SUM(Quantity) AS Quantity FROM tbbillhistory WHERE DATE(BillDate) = CURDATE()";
+
+    $current_year = date('Y');
+    $current_month = date('m');
+
+    $sql_totalamount_by_month = "SELECT DATE_FORMAT(BillDate, '%m') AS datamonth, SUM(TotalAmount) AS TotalAmount FROM tbbillhistory WHERE YEAR(BillDate) = $current_year GROUP BY DATE_FORMAT(BillDate, '%m') ORDER BY datamonth ASC";
+
+    $sql_totalamount_by_hour = "SELECT DATE_FORMAT(BillDate, '%H') AS hour_of_day, SUM(TotalAmount) AS TotalAmount FROM tbbillhistory WHERE YEAR(BillDate) = $current_year GROUP BY DATE_FORMAT(BillDate, '%H') ORDER BY hour_of_day ASC";
+
+    $sql_total_amount_by_day = " SELECT DATE_FORMAT(BillDate, '%d') AS bill_date, SUM(TotalAmount) AS TotalAmount FROM tbbillhistory WHERE YEAR(BillDate) = $current_year AND MONTH(BillDate) = $current_month GROUP BY DATE_FORMAT(BillDate, '%d') ORDER BY bill_date ASC";
 
     $result_totalamount = $conn->query($sql_totalamount);
+    $result_totalcustomer = $conn->query($sql_totalcustomer);
+    $result_alltable = $conn->query($sql_alltable);
+    $result_statustable = $conn->query($sql_statustable);
+    $result_bestfoodname = $conn->query($sql_bestfoodname);
+    $result_totalQuantitySold = $conn->query($sql_totalQuantitySold);
+    $result_totalamount_by_month = $conn->query($sql_totalamount_by_month);
+    $result_totalamount_by_hour = $conn->query($sql_totalamount_by_hour);
+    $result_total_amount_by_day = $conn->query($sql_total_amount_by_day);
 
-    $rows_totalamount = array();
-    
-    while ($row_totalamount = $result_totalamount->fetch_assoc()){
-        $rows_totalamount[] = $row_totalamount;
+    //truy vấn tổng tiền ngày
+    while ($row_totalamount = $result_totalamount->fetch_assoc()) {
+        $rows_totalamount = $row_totalamount;
     }
 
-    $json = json_encode(array("totalAmount" => $rows_totalamount), JSON_PRETTY_PRINT);
+    //truy vấn số lượng khách trong ngày
+    $rows_totalcustomer = array();
+    while ($row_totalcustomer = $result_totalcustomer->fetch_assoc()) {
+        $rows_totalcustomer[] = $row_totalcustomer;
+    }
+
+    //truy vấn tổng bàn trống trong ngày
+    while ($row_alltable = $result_alltable->fetch_assoc()) {
+        $rows_alltable = $row_alltable;
+    }
+
+    //truy vấn tổng bàn có người trong ngày
+    while ($row_statustable = $result_statustable->fetch_assoc()) {
+        $rows_statustable = $row_statustable;
+    }
+
+    //truy vấn best food trong ngày
+    while ($row_bestfoodname = $result_bestfoodname->fetch_assoc()) {
+        $rows_bestfoodname = $row_bestfoodname;
+    }
+
+    //truy vấn all quantity sold trong ngày
+    while ($row_totalQuantitySold = $result_totalQuantitySold->fetch_assoc()) {
+        $rows_totalQuantitySold = $row_totalQuantitySold;
+    }
+    
+    $rows_totalamount_by_month = array();
+    while ($row_totalamount_by_month = $result_totalamount_by_month->fetch_assoc()) {
+        $rows_totalamount_by_month[] = $row_totalamount_by_month;
+    }
+
+    $rows_totalamount_by_hour = array();
+    while ($row_totalamount_by_hour = $result_totalamount_by_hour->fetch_assoc()) {
+        $rows_totalamount_by_hour[] = $row_totalamount_by_hour;
+    }
+
+    $rows_total_amount_by_day = array();
+    while ($row_total_amount_by_day = $result_total_amount_by_day->fetch_assoc()) {
+        $rows_total_amount_by_day[] = $row_total_amount_by_day;
+    }
+
+    $combined_results = array(
+        "TotalAmount" => $rows_totalamount,
+        "TotalTable" => $rows_alltable,
+        "TotalTableNotEmpty" => $rows_statustable,
+        "TotalCustomer" => $rows_totalcustomer,
+        "BestFoodName" => $rows_bestfoodname,
+        "ToTalQuantitySold" => $rows_totalQuantitySold,
+        "TotalAmountByMonth" => $rows_totalamount_by_month,
+        "TotalAmountByHour" => $rows_totalamount_by_hour,
+        "TotalAmountByDay" => $rows_total_amount_by_day,
+    );
+    
+    // Encode to JSON
+    $json = json_encode(array("home" => $combined_results), JSON_PRETTY_PRINT);
 
     file_put_contents('data.json', $json);
 }
@@ -125,6 +212,7 @@ function getDmFood($conn, $TableName){
 
     $rows_dmFood = array();
     $rows_Food = array();
+    $rows_bill = array();
 
     while ($row_dmFood = $result_dmFood->fetch_assoc()){
         $rows_dmFood[] = $row_dmFood;
@@ -134,19 +222,13 @@ function getDmFood($conn, $TableName){
         $rows_Food[] = $row_Food;
     }
 
-    if($result_bill && $result_bill->num_rows > 0){
-        $rows_bill = array();
-        while ($row_bill = $result_bill->fetch_assoc()){
-            $rows_bill[] = $row_bill;
-        }
-        $json = json_encode(array("ListCategory" => $rows_dmFood,"ListFood" => $rows_Food, "BillCurrentOfTable" => $rows_bill), JSON_PRETTY_PRINT);
-        
-        file_put_contents('data.json', $json);
-    }else{
-        $json = json_encode(array("ListCategory" => $rows_dmFood,"ListFood" => $rows_Food), JSON_PRETTY_PRINT);
-
-        file_put_contents('data.json', $json);
+    while ($row_bill = $result_bill->fetch_assoc()){
+        $rows_bill[] = $row_bill;
     }
+
+    $json = json_encode(array("ListCategory" => $rows_dmFood,"ListFood" => $rows_Food, "BillCurrentOfTable" => $rows_bill), JSON_PRETTY_PRINT);
+
+    file_put_contents('data.json', $json);
 }
 
 function getFood($conn, $DMFoodID){
@@ -165,7 +247,29 @@ function getFood($conn, $DMFoodID){
     file_put_contents('data.json', $json);
 }
 
-function addBill($conn, $FoodName, $FoodID, $Quantity, $TableName, $BillDate, $CustomerName, $SDT){
+function changeStatusTable($conn, $TableName){
+    $sql_status = "SELECT * FROM tbbilldetails WHERE TableName='$TableName'";
+    $result_status = $conn->query($sql_status);
+    
+    if($result_status->num_rows == 0){
+        $status = "Trống";
+        $sql_changeStatusTable = "UPDATE tbdstable SET Status='$status' WHERE TableID='$TableName'";
+        $result_changeStatusTable = $conn->query($sql_changeStatusTable);
+    }else if($result_status->num_rows > 0){
+        $status = "Có người";
+        $sql_changeStatusTable = "UPDATE tbdstable SET Status='$status' WHERE TableID='$TableName'";
+        $result_changeStatusTable = $conn->query($sql_changeStatusTable);
+    }
+}
+
+
+function addBill($conn, $FoodName, $FoodID, $Quantity, $TableName, $BillDate, $CustomerName, $SDT, $UserInfoName){
+
+    date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+    $currentDateTime = new DateTime(); 
+    $currentDateTime = date('Y-m-d H:i:s'); 
+
     $sql_searchFoodName = "SELECT * FROM tbfood WHERE FoodID = '$FoodID'";
     $result_searchFoodName = $conn->query($sql_searchFoodName);
 
@@ -176,7 +280,7 @@ function addBill($conn, $FoodName, $FoodID, $Quantity, $TableName, $BillDate, $C
         $Price = $row_searchFoodName['Price'];
 
         //check tồn tại của food trước đó
-        $sql_check = "SELECT * FROM tbBillDetails WHERE FoodName = '$FoodName' and TableName='$TableName'";
+        $sql_check = "SELECT * FROM tbbilldetails WHERE FoodName = '$FoodName' and TableName='$TableName'";
         $result_check = $conn->query($sql_check);
 
         if($result_check && $result_check->num_rows > 0){
@@ -188,20 +292,31 @@ function addBill($conn, $FoodName, $FoodID, $Quantity, $TableName, $BillDate, $C
 
             $TotalAmount = $Price * $QuantityCurrent;
 
-            $sql_addBill = "UPDATE tbBillDetails SET TotalAmount = '$TotalAmount', Quantity='$QuantityCurrent' WHERE FoodName = '$FoodName'";
+            $sql_addBill = "UPDATE tbbilldetails SET TotalAmount = '$TotalAmount', Quantity='$QuantityCurrent' WHERE FoodName = '$FoodName'";
             
             $result_addBill = $conn->query($sql_addBill);
         }else if($result_check->num_rows == 0){
-            $sql_addBill = "INSERT INTO tbBillDetails (FoodName,TableName,BillDate,Price,CustomerName,SDT,Quantity,TotalAmount) VALUES ('$FoodName','$TableName','$BillDate','$Price','$CustomerName','$SDT',1,'$Price')";
+
+            //check user nhân viên
+            $sql_searchUserInfoName = "SELECT * FROM tbAccount WHERE Username = '$UserInfoName'";
+            $result_searchUserInfoName = $conn->query($sql_searchUserInfoName);
             
-            $result_addBill = $conn->query($sql_addBill);
+            if ($result_searchUserInfoName && $result_searchUserInfoName->num_rows > 0) {
+                $row_searchUserInfoName = $result_searchUserInfoName->fetch_assoc();
+                $AccountID = $row_searchUserInfoName['AccountID'];
+
+                $sql_addBill = "INSERT INTO tbbilldetails (FoodName,TableName,BillDate,Price,CustomerName,SDT,Quantity,TotalAmount,UserInfoID) VALUES ('$FoodName','$TableName','$currentDateTime','$Price','$CustomerName','$SDT',1,'$Price','$AccountID')";
+                $result_addBill = $conn->query($sql_addBill);
+
+                changeStatusTable($conn, $TableName);
+            }
         }
-    } 
+    }
 }
 
 function plushQuantityItem($conn, $FoodName, $TableName, $CustomerName, $SDT){
     //check tồn tại của food trước đó
-    $sql = "SELECT * FROM tbBillDetails WHERE FoodName = '$FoodName' and TableName='$TableName' and CustomerName = '$CustomerName' and SDT = '$SDT'";
+    $sql = "SELECT * FROM tbbilldetails WHERE FoodName = '$FoodName' and TableName='$TableName' and CustomerName = '$CustomerName' and SDT = '$SDT'";
     $result = $conn->query($sql);
 
     if($result && $result->num_rows > 0){
@@ -214,14 +329,43 @@ function plushQuantityItem($conn, $FoodName, $TableName, $CustomerName, $SDT){
 
         $TotalAmount = $Price * $QuantityCurrent;
 
-        $sql_plush = "UPDATE tbBillDetails SET TotalAmount = '$TotalAmount', Quantity='$QuantityCurrent' WHERE FoodName = '$FoodName' and TableName='$TableName' and CustomerName = '$CustomerName' and SDT = '$SDT'";
+        $sql_plush = "UPDATE tbbilldetails SET TotalAmount = '$TotalAmount', Quantity='$QuantityCurrent' WHERE FoodName = '$FoodName' and TableName='$TableName' and CustomerName = '$CustomerName' and SDT = '$SDT'";
         
         $result_plush = $conn->query($sql_plush);
     }
 }
 
+function minusQuantityItem($conn, $FoodName, $TableName, $CustomerName, $SDT){
+    //check tồn tại của food trước đó
+    $sql = "SELECT * FROM tbbilldetails WHERE FoodName = '$FoodName' and TableName='$TableName' and CustomerName = '$CustomerName' and SDT = '$SDT'";
+    $result = $conn->query($sql);
+
+    if($result && $result->num_rows > 0){
+
+        $row = $result->fetch_assoc();
+
+        $Quantity = $row['Quantity'];
+        $Price = $row['Price'];
+        $QuantityCurrent = $Quantity - 1;
+        
+        if($QuantityCurrent > 0){
+            $TotalAmount = $Price * $QuantityCurrent;
+
+            $sql_minus = "UPDATE tbbilldetails SET TotalAmount = '$TotalAmount', Quantity='$QuantityCurrent' WHERE FoodName = '$FoodName' and TableName='$TableName' and CustomerName = '$CustomerName' and SDT = '$SDT'";
+            $result_minus = $conn->query($sql_minus);
+        }else{
+            $sql_minus = "DELETE FROM tbbilldetails WHERE FoodName = '$FoodName' AND TableName='$TableName' AND CustomerName = '$CustomerName' AND SDT = '$SDT'";
+            $result_minus = $conn->query($sql_minus);
+
+            if($conn->query($sql_minus) === true){
+                changeStatusTable($conn, $TableName);
+            }
+        }
+    }
+}
+
 function getDatalBillCurrent($conn, $TableName){
-    $sql = "SELECT * FROM tbBillDetails WHERE TableName='$TableName'";
+    $sql = "SELECT * FROM tbbilldetails WHERE TableName='$TableName'";
 
     $result = $conn->query($sql);
 
@@ -235,5 +379,56 @@ function getDatalBillCurrent($conn, $TableName){
 
     file_put_contents('data.json', $json);
 }
+
+function saveBillToSQL($conn, $TableName) {
+    date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+    $currentDateTime = new DateTime(); 
+    $currentDateTime = date('Y-m-d H:i:s'); 
+
+    // Đường dẫn đến file JSON
+    $file_path = 'data.json';
+
+    // Đọc nội dung file JSON
+    $json_content = file_get_contents($file_path);
+
+    // Giải mã JSON thành mảng PHP
+    $data = json_decode($json_content, true);
+
+    // Lấy danh sách hóa đơn hiện tại của bàn (BillCurrentOfTable)
+    $bill_current = $data['BillCurrentOfTable'];
+
+    if (empty($bill_current)) {
+        echo 'Không có hóa đơn nào hiện tại.';
+    } else {
+        foreach ($bill_current as $bill) {
+            if($bill['TableName'] == $TableName){
+
+                $FoodName = $bill['FoodName'];
+                $Quantity = $bill['Quantity'];
+                $Price = $bill['Price'];
+                $TableName = $bill['TableName'];
+                $TotalAmount = $bill['TotalAmount'];
+                $UserInfoID = $bill['UserInfoID'];
+                $CustomerName = $bill['CustomerName'];
+                $SDT = $bill['SDT'];
+                //thêm bill vào tbBillHistory
+                $sql_insert = "INSERT INTO tbbillhistory (FoodName, Quantity, Price, TableName, BillDate, TotalAmount, UserInfoID, CustomerName, SDT) 
+                VALUES ('$FoodName','$Quantity','$Price','$TableName','$currentDateTime','$TotalAmount','$UserInfoID','$CustomerName','$SDT')";
+                $result_insert = $conn->query($sql_insert);
+
+                //xóa bill khỏi tbbilldetails
+                $sql_delete = "DELETE FROM tbbilldetails WHERE TableName='$TableName'";
+                $result_delete = $conn->query($sql_delete);
+
+                if($conn->query($sql_delete)){
+                    changeStatusTable($conn, $TableName);
+                }
+            }
+            
+        }
+    }
+}
+
 $conn->close();
 ?>

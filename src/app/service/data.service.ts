@@ -34,18 +34,20 @@ export class DataService {
     return this.http.get<any>(url);
   }
 
+  //TRANGCHU
   //lấy toàn bộ danh sách hóa đơn
   getTbBillHistory(): Observable<any> {
     const url = `${this.API}?action=home`;
     return this.http.get<any>(url);
   }
 
-  //đọc tbBillHistory để tính sum
-  readBillJson(): Observable<any> {
-    const url = `${this.DATA_JSON}/totalAmount`;
+  //Doanh thu ngày
+  readDataJsonForHome(): Observable<any> {
+    const url = `${this.DATA_JSON}/home`;
     return this.http.get<any>(url);
   }
 
+  //GOIMON
   //lấy toàn bộ bàn
   getTbDsTable(): Observable<any> {
     const url = `${this.API}?action=getTable`;
@@ -79,12 +81,13 @@ export class DataService {
     return this.http.get<any>(url);
   }
 
-  addBill(FoodID: any, TableName: any, CustomerName: any, SDT: any): Observable<any> {
+  addBill(FoodID: any, TableName: any, CustomerName: any, SDT: any, UserInfoName: any): Observable<any> {
     const foodid = FoodID;
     const tablename = TableName;
     const BillDate = new Date();
     const customername = CustomerName;
     const sdt = SDT;
+    const userinfoname = UserInfoName;
 
     // Lấy ngày, tháng, năm từ đối tượng Date
     const day = BillDate.getDate().toString().padStart(2, '0'); // Ngày
@@ -94,7 +97,7 @@ export class DataService {
     // Chuỗi có định dạng yyyy/mm/dd
     const formattedDate = `${year}-${month}-${day}`;
 
-    const url = `${this.API}?action=addBill&FoodID=${foodid}&TableName=${tablename}&BillDate=${formattedDate}&CustomerName=${customername}&SDT=${sdt}`;
+    const url = `${this.API}?action=addBill&FoodID=${foodid}&TableName=${tablename}&BillDate=${formattedDate}&SDT=${sdt}&UserInfoName=${userinfoname}&CustomerName=${customername}`;
     return this.http.get<any>(url);
   }
 
@@ -104,7 +107,15 @@ export class DataService {
     const customername = item.CustomerName;
     const sdt = item.SDT;
     const url = `${this.API}?action=plushQuantityItem&FoodName=${foodName}&TableName=${tablename}&CustomerName=${customername}&SDT=${sdt}`;
-    console.log(url)
+    return this.http.get<any>(url);
+  }
+
+  minusBill(item: bill): Observable<any> {
+    const foodName = item.FoodName;
+    const tablename = item.TableName;
+    const customername = item.CustomerName;
+    const sdt = item.SDT;
+    const url = `${this.API}?action=minusQuantityItem&FoodName=${foodName}&TableName=${tablename}&CustomerName=${customername}&SDT=${sdt}`;
     return this.http.get<any>(url);
   }
 
@@ -116,6 +127,12 @@ export class DataService {
 
   readBillCurrentOfTable(): Observable<any> {
     const url = `${this.DATA_JSON}/BillCurrentOfTable`;
+    return this.http.get<any>(url);
+  }
+
+  saveBillToSQL(TableName: any):Observable<any>{
+    const tablename = TableName;
+    const url = `${this.API}?action=saveBillToSQL&TableName=${tablename}`;
     return this.http.get<any>(url);
   }
 }

@@ -14,7 +14,7 @@ export class LoginComponent {
   accType: string = "";
 
   constructor(private service: DataService, private router: Router) { 
-    this.taikhoan = new taikhoan(0,'HTP','123')
+    this.taikhoan = new taikhoan(0,'admin','1')
   }
 
   login(taikhoan: taikhoan) {

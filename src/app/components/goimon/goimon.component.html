@@ -1,6 +1,6 @@
 <h1>GỌI MÓN</h1>
 <div id="container">
-    <a class="item-table" *ngFor="let table of tables" (click)="datmon(table)">
+    <a class="item-table" *ngFor="let table of tables" (click)="datmon(table)" [ngClass]="{'status': table.isSelected}">
         <p>{{ table.TableName }}</p>
         <p>Trạng thái: {{table.Status}}</p>
     </a>

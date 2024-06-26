@@ -1,3 +1,6 @@
+*{
+    font-family: arial;
+}
 #container {
     display: flex;
     justify-content: center;
@@ -25,4 +28,9 @@
 .item-table:hover {
     cursor: pointer;
     box-shadow: 0px 10px 8px rgba(0, 0, 0, 0.3);
+}
+
+.status, .status p{
+    background-color: #4e73df;
+    color: white;
 }

@@ -1,26 +1,104 @@
 {
-    "BillCurrentOfTable": [
+    "ListTable": [
         {
-            "BillID": "5",
-            "FoodName": "Cocacola",
-            "Quantity": "9",
-            "Price": "18000",
-            "TableName": "7",
-            "BillDate": "2024-06-25",
-            "TotalAmount": "162000",
-            "CustomerName": "abc",
-            "SDT": "123"
+            "TableID": "1",
+            "TableName": "B\u00e0n 1",
+            "Status": "Tr\u1ed1ng"
         },
         {
-            "BillID": "6",
-            "FoodName": "N\u01b0\u1edbc l\u1ecdc",
-            "Quantity": "8",
-            "Price": "6000",
-            "TableName": "7",
-            "BillDate": "2024-06-25",
-            "TotalAmount": "48000",
-            "CustomerName": "abc",
-            "SDT": "123"
+            "TableID": "2",
+            "TableName": "B\u00e0n 2",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "3",
+            "TableName": "B\u00e0n 3",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "4",
+            "TableName": "B\u00e0n 4",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "5",
+            "TableName": "B\u00e0n 5",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "6",
+            "TableName": "B\u00e0n 6",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "7",
+            "TableName": "B\u00e0n 7",
+            "Status": "C\u00f3 ng\u01b0\u1eddi"
+        },
+        {
+            "TableID": "8",
+            "TableName": "B\u00e0n 8",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "9",
+            "TableName": "B\u00e0n 9",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "10",
+            "TableName": "B\u00e0n 10",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "11",
+            "TableName": "B\u00e0n 11",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "12",
+            "TableName": "B\u00e0n 12",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "13",
+            "TableName": "B\u00e0n 13",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "14",
+            "TableName": "B\u00e0n 14",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "15",
+            "TableName": "B\u00e0n 15",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "16",
+            "TableName": "B\u00e0n 16",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "17",
+            "TableName": "B\u00e0n 17",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "18",
+            "TableName": "B\u00e0n 18",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "19",
+            "TableName": "B\u00e0n 19",
+            "Status": "Tr\u1ed1ng"
+        },
+        {
+            "TableID": "20",
+            "TableName": "B\u00e0n 20",
+            "Status": "Tr\u1ed1ng"
         }
     ]
 }

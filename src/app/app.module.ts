@@ -23,7 +23,7 @@ import { GiaodiengoimonComponent } from './components/giaodiengoimon/giaodiengoi
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [
     provideClientHydration(),
